@@ -1,17 +1,4 @@
-{{- if .Values.curator.enable }}
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ template "fullname" . }}-curator-config
-  labels:
-    component: curator
-    app: {{ template "fullname" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: "{{ .Release.Name }}"
-    heritage: "{{ .Release.Service }}"
-data:
-  action_file.yml: |-
-    ---
+`{{- define "acton_file_template" }}
     # Remember, leave a key empty if there is no value.  None will be a string,
     # not a Python "NoneType"
     #
@@ -28,16 +15,39 @@ data:
           continue_if_exception: False
           disable_action: False
         filters:
-        - filtertype: age
-          source: name
-          direction: older
-          timestring: '{{ .Values.curator.age.timestring }}'
-          unit: {{ .Values.curator.age.unit }}
-          unit_count: {{ .Values.curator.age.unit_count }}
+        {{- range .Values.curator.filters }}
+        {{- if eq ( .type | toString ) "age" }}
+        - filtertype: {{ .type }}
+          name: {{ .name }}
+          source: {{ .source }}
+          direction: {{ .direction }}
+          timestring: '{{ .timestring }}'
+          unit: {{ .unit }}
+          unit_count: {{ .unit_count }}
           field:
           stats_result:
           epoch:
           exclude: False
+        {{- end}}
+        {{- end }}
+{{end}}`
+
+{{- if .Values.curator.enable }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}-curator-config
+  labels:
+    component: curator
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+data:
+  action_file.yml: |-
+    ---
+    {{- template "acton_file_template" . }}
+  
   config.yml: |-
     ---
     # Remember, leave a key empty if there is no value.  None will be a string,
