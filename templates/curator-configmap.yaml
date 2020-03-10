@@ -1,4 +1,4 @@
-`{{- define "acton_file_template" }}
+{{- define "acton_file_template" }}
     # Remember, leave a key empty if there is no value.  None will be a string,
     # not a Python "NoneType"
     #
@@ -21,16 +21,16 @@
           name: {{ .name }}
           source: {{ .source }}
           direction: {{ .direction }}
-          timestring: '{{ .timestring }}'
+          timestring: {{ .timestring | toString | quote }}
           unit: {{ .unit }}
           unit_count: {{ .unit_count }}
           field:
           stats_result:
           epoch:
-          exclude: False
-        {{- end}}
+          exclude: {{ .exclude }}
         {{- end }}
-{{end}}`
+        {{- end }}
+{{end}}
 
 {{- if .Values.curator.enable }}
 apiVersion: v1
