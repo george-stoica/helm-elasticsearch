@@ -6,16 +6,18 @@
     # want to use this action as a template, be sure to set this to False after
     # copying it.
     actions:
-      1:
-        action: delete_indices
-        description: "Clean up ES by deleting old indices"
+    {{- range $index, $action := .Values.curator.actions }}
+      {{ add $index 1 }}:
+        action: {{ $action.action}}
+        description: {{ $action.description }}
         options:
           ignore_empty_list: True
           timeout_override:
           continue_if_exception: False
           disable_action: False
+        {{- if hasKey $action "filters" }}
         filters:
-        {{- range .Values.curator.filters }}
+        {{- range .filters }}
         {{- if eq ( .type | toString ) "age" }}
         - filtertype: {{ .type }}
           name: {{ .name }}
@@ -29,6 +31,14 @@
           epoch:
           exclude: {{ .exclude }}
         {{- end }}
+        
+        {{- /* end Filters iteration */ -}}
+        {{- end }}
+        
+        {{- /* end Filters test */ -}}
+        {{- end }}
+        
+        {{- /* end Actions iteration */ -}}
         {{- end }}
 {{end}}
 
