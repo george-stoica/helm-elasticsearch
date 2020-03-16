@@ -20,7 +20,6 @@
         {{- range .filters }}
         {{- if eq ( .type | toString ) "age" }}
         - filtertype: {{ .type }}
-          name: {{ .name }}
           source: {{ .source }}
           direction: {{ .direction }}
           timestring: {{ .timestring | toString | quote }}
